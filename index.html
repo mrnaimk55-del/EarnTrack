@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<title>EarnTrack</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#f6f7fb;--card:#fff;--text:#111827;--muted:#64748b;--blue:#2563eb;--blue2:#3b82f6;--green:#16a34a;--red:#dc2626;--line:#e8ebf0}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:480px;margin:auto;min-height:100vh;background:var(--bg);padding-bottom:86px}
+.top{background:#0f172a;color:white;padding:22px 18px 18px;border-radius:0 0 25px 25px}
+.topline{display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:21px;font-weight:800}.sub{font-size:12px;color:#cbd5e1;margin-top:4px}
+.iconbtn{width:38px;height:38px;border:0;border-radius:50%;background:#1e293b;color:#fff;font-size:18px}
+main{padding:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:13px;box-shadow:0 4px 16px rgba(15,23,42,.05)}
+.hero{margin-top:-1px;background:linear-gradient(145deg,#1d4ed8,#2563eb);color:#fff;border:0}
+.hero .muted{color:#dbeafe}.target{font-size:13px;opacity:.9}.remaining{font-size:32px;font-weight:850;margin:5px 0}
+.progress{height:11px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden;margin:16px 0 8px}
+.bar{height:100%;background:#fff;width:0%;border-radius:99px;transition:.3s}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.muted{color:var(--muted);font-size:13px}.money{font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{padding:14px;background:#f8fafc;border-radius:15px}.stat b{font-size:21px;display:block;margin-top:3px}
+h2,h3{margin:0 0 10px}.sectiontitle{font-size:16px;font-weight:800}
+button{font:inherit;border:0;cursor:pointer}.primary{background:#fff;color:#1d4ed8;font-weight:800;padding:10px 13px;border-radius:12px}.blue{background:var(--blue);color:#fff;font-weight:800;padding:13px;border-radius:13px}.soft{background:#eef2ff;color:#1d4ed8;font-weight:700;padding:10px 13px;border-radius:12px}
+input,select{width:100%;border:1px solid #dbe1e9;border-radius:13px;padding:13px;background:#fff;font:inherit;outline:none}input:focus{border-color:#93c5fd}
+.form{display:grid;gap:10px}.label{font-size:12px;color:var(--muted);margin-bottom:5px}
+.entry{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.entry:last-child{border-bottom:0}
+.day{width:45px;height:45px;border-radius:13px;background:#eff6ff;color:#1d4ed8;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;line-height:1}.day small{font-size:9px;font-weight:600;margin-top:3px}
+.entrymain{flex:1}.entrymain b{font-size:14px}.entrymain small{display:block;color:var(--muted);font-size:11px;margin-top:3px}.amount{font-weight:800;color:var(--green)}
+.del{background:#fee2e2;color:#991b1b;border-radius:9px;width:31px;height:31px}
+.bottom{position:fixed;bottom:0;left:0;right:0;margin:auto;max-width:480px;height:72px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;z-index:10}
+.nav{background:none;color:#64748b;font-size:11px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:4px}.nav.active{color:#2563eb}.nav span{font-size:21px}
+.fab{width:58px;height:58px;border-radius:50%;background:#2563eb;color:white;font-size:29px;box-shadow:0 8px 20px rgba(37,99,235,.35);margin-top:-28px;border:5px solid #f6f7fb}
+.page{display:none}.page.active{display:block}
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:30;align-items:flex-end}.modal.show{display:flex}.sheet{background:#fff;width:100%;max-width:480px;margin:auto;border-radius:25px 25px 0 0;padding:20px 18px 30px}.sheethead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.close{background:#eef2f7;width:34px;height:34px;border-radius:50%}
+.toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%) translateY(15px);background:#111827;color:#fff;padding:11px 15px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:50;white-space:nowrap}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;color:var(--muted);padding:22px 5px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+ <div class="topline"><div><div class="brand">💰 EarnTrack</div><div class="sub">Your earning target, one day at a time.</div></div><button class="iconbtn" onclick="openSettings()">⚙️</button></div>
+</header>
+
+<main>
+<section id="home" class="page active">
+ <div class="card hero">
+  <div class="row"><div class="target">WEEKLY TARGET</div><button class="primary" onclick="editTarget()">Edit</button></div>
+  <div class="remaining money" id="remaining">₹4,000</div>
+  <div class="muted" id="heroText">remaining from ₹4,000</div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="row"><span id="pct">0% completed</span><span id="earnedHero">₹0 earned</span></div>
+ </div>
+
+ <div class="grid">
+  <div class="stat card" style="margin:0"><span class="muted">Today</span><b class="money" id="today">₹0</b></div>
+  <div class="stat card" style="margin:0"><span class="muted">This Week</span><b class="money" id="weekEarned">₹0</b></div>
+ </div>
+
+ <div style="height:13px"></div>
+ <div class="card">
+  <div class="row"><div><div class="sectiontitle">📅 Recent Earnings</div><div class="muted">This week's entries</div></div><button class="soft" onclick="showPage('history')">See all</button></div>
+  <div id="recent"></div>
+ </div>
+</section>
+
+<section id="history" class="page">
+ <div class="row" style="margin:5px 2px 14px"><div><h2>History</h2><div class="muted">Your daily earning record</div></div><button class="soft" onclick="openModal()">＋ Add</button></div>
+ <div class="card"><div id="historyList"></div></div>
+</section>
+
+<section id="stats" class="page">
+ <div style="margin:5px 2px 14px"><h2>Reports</h2><div class="muted">Track your progress</div></div>
+ <div class="grid">
+  <div class="stat card" style="margin:0"><span class="muted">This Week</span><b id="reportWeek">₹0</b></div>
+  <div class="stat card" style="margin:0"><span class="muted">This Month</span><b id="reportMonth">₹0</b></div>
+ </div>
+ <div style="height:13px"></div>
+ <div class="card"><div class="sectiontitle">🎯 Daily Average</div><div style="font-size:29px;font-weight:850;margin-top:5px" id="avg">₹0</div><div class="muted">Average earning on days with entries</div></div>
+</section>
+</main>
+
+<nav class="bottom">
+ <button class="nav active" id="navhome" onclick="showPage('home')"><span>⌂</span>Home</button>
+ <button class="nav" id="navhistory" onclick="showPage('history')"><span>▣</span>History</button>
+ <button class="fab" onclick="openModal()">+</button>
+ <button class="nav" id="navstats" onclick="showPage('stats')"><span>▥</span>Reports</button>
+ <button class="nav" onclick="openSettings()"><span>⚙</span>Settings</button>
+</nav>
+</div>
+
+<div class="modal" id="modal">
+ <div class="sheet">
+  <div class="sheethead"><div><h3>Add Earning</h3><div class="muted">Enter your earning for a date.</div></div><button class="close" onclick="closeModal()">×</button></div>
+  <div class="form">
+   <div><div class="label">Date</div><input id="date" type="date"></div>
+   <div><div class="label">Earning Amount (₹)</div><input id="amount" type="number" min="1" step="1" placeholder="e.g. 500"></div>
+   <button class="blue" onclick="addEntry()">Save Earning</button>
+  </div>
+ </div>
+</div>
+
+<div class="modal" id="settings">
+ <div class="sheet">
+  <div class="sheethead"><div><h3>Settings</h3><div class="muted">Manage your tracker</div></div><button class="close" onclick="closeSettings()">×</button></div>
+  <div class="form">
+   <div><div class="label">Weekly Target (₹)</div><input id="targetInput" type="number" min="1"></div>
+   <button class="blue" onclick="saveTarget()">Save Target</button>
+   <button class="soft" onclick="resetAll()">Reset All Data</button>
+  </div>
+ </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='earntrack_pro_v1';
+let s=JSON.parse(localStorage.getItem(KEY)||'null')||{target:4000,entries:[]};
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toISOString().slice(0,10);
+function monday(v=today()){let d=new Date(v+'T12:00:00'),day=d.getDay();d.setDate(d.getDate()+(day===0?-6:1-day));return d.toISOString().slice(0,10)}
+function weekEnd(){let d=new Date(monday()+'T12:00:00');d.setDate(d.getDate()+6);return d.toISOString().slice(0,10)}
+function week(){let a=monday(),b=weekEnd();return s.entries.filter(x=>x.date>=a&&x.date<=b).sort((a,b)=>b.date.localeCompare(a.date))}
+function month(){let p=today().slice(0,7);return s.entries.filter(x=>x.date.startsWith(p))}
+function sum(a){return a.reduce((n,x)=>n+Number(x.amount),0)}
+function money(n){return '₹'+Number(n||0).toLocaleString('en-IN')}
+function dateText(d){return new Date(d+'T12:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
+function save(){localStorage.setItem(KEY,JSON.stringify(s));render();toast('Saved ✓')}
+function render(){
+ let w=week(), earned=sum(w), rem=Math.max(0,s.target-earned), pct=s.target?Math.min(100,earned/s.target*100):0;
+ $('remaining').textContent=rem?money(rem):'🎉 Target Complete!';
+ $('heroText').textContent=rem?`remaining from ${money(s.target)}`:`You reached ${money(s.target)} this week`;
+ $('bar').style.width=pct+'%';$('pct').textContent=Math.round(pct)+'% completed';$('earnedHero').textContent=money(earned)+' earned';
+ $('today').textContent=money(sum(s.entries.filter(x=>x.date===today())));$('weekEarned').textContent=money(earned);
+ let recent=w.slice(0,4); $('recent').innerHTML=recent.length?recent.map(row).join(''):'<div class="empty">No earnings added yet.<br>Tap + to add your first earning.</div>';
+ $('historyList').innerHTML=w.length?w.map(row).join(''):'<div class="empty">No entries for this week.</div>';
+ let m=sum(month()), days=new Set(month().map(x=>x.date)).size;
+ $('reportWeek').textContent=money(earned);$('reportMonth').textContent=money(m);$('avg').textContent=money(days?Math.round(m/days):0);
+}
+function row(x){let d=new Date(x.date+'T12:00:00');return `<div class="entry"><div class="day">${d.toLocaleDateString('en-IN',{day:'2-digit'})}<small>${d.toLocaleDateString('en-IN',{month:'short'})}</small></div><div class="entrymain"><b>${dateText(x.date)}</b><small>Daily earning</small></div><div class="amount money">+${money(x.amount)}</div><button class="del" onclick="del('${x.id}')">×</button></div>`}
+function openModal(){$('date').value=today();$('amount').value='';$('modal').classList.add('show');setTimeout(()=>$('amount').focus(),150)}
+function closeModal(){$('modal').classList.remove('show')}
+function addEntry(){let a=Number($('amount').value),d=$('date').value||today();if(!a){toast('Enter an earning amount');return}s.entries.push({id:Date.now().toString(),date:d,amount:a});localStorage.setItem(KEY,JSON.stringify(s));closeModal();render();toast('Earning added ✓')}
+function del(id){if(confirm('Delete this earning?')){s.entries=s.entries.filter(x=>x.id!==id);localStorage.setItem(KEY,JSON.stringify(s));render();toast('Deleted')}}
+function editTarget(){openSettings()}
+function openSettings(){$('targetInput').value=s.target;$('settings').classList.add('show')}
+function closeSettings(){$('settings').classList.remove('show')}
+function saveTarget(){let n=Number($('targetInput').value);if(n>0){s.target=n;localStorage.setItem(KEY,JSON.stringify(s));closeSettings();render();toast('Target updated ✓')}}
+function resetAll(){if(confirm('Delete all earnings and reset target to ₹4,000?')){s={target:4000,entries:[]};localStorage.setItem(KEY,JSON.stringify(s));closeSettings();render();toast('All data reset')}}
+function showPage(p){['home','history','stats'].forEach(x=>$(x).classList.toggle('active',x===p));['home','history','stats'].forEach(x=>{let n=$('nav'+x);if(n)n.classList.toggle('active',x===p)});window.scrollTo(0,0)}
+function toast(t){let e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove('show'),1600)}
+$('date').value=today();render();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+</script>
+</body></html>
